@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pamone-obs"
+version = "0.1.0"
+description = "Reusable pamone sidecar helper: cgroup metrics + stdout log tee, plus optional trace mirroring."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Proprietary" }
+dependencies = []
+
+[project.optional-dependencies]
+# Tracer libraries are optional; pamone_obs auto-detects whichever is present.
+trace = ["ddtrace>=3.8.1"]
+otel = ["opentelemetry-api", "opentelemetry-sdk"]
+
+[project.scripts]
+pamone-obs = "pamone_obs.cli:main"
+
+[tool.setuptools]
+packages = ["pamone_obs"]
