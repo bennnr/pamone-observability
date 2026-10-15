@@ -9,7 +9,17 @@ description = "Reusable pamone sidecar helper: cgroup metrics + stdout log tee, 
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "Proprietary" }
+authors = [{ name = "PAM Team" }]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+]
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/bennnr/pamone-observability"
+Repository = "https://github.com/bennnr/pamone-observability"
+Issues = "https://github.com/bennnr/pamone-observability/issues"
 
 [project.optional-dependencies]
 # Tracer libraries are optional; pamone_obs auto-detects whichever is present.
