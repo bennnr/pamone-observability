@@ -18,15 +18,16 @@ Usage (explicit):
 Usage (zero-code, install once in the base image):
     pamone-obs install-pth           # adds a .pth that calls autostart()
 """
+import logging
 import os
-
-from loguru import logger
 
 from . import contract, metrics, trace  # noqa: F401 (re-export)
 from .contract import install_log_tee
 
+logger = logging.getLogger("pamone_obs")
+
 __all__ = ["init", "autostart", "contract", "metrics", "trace"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 def _bool(env, default):

@@ -3,13 +3,14 @@
 Writes <SINK_DIR>/metrics.jsonl: {"metric","unit","value"} per line. Works under
 Pod Security "restricted" because the container can read its own cgroup v2.
 """
+import logging
 import os
 import threading
 import time
 
-from loguru import logger
-
 from . import contract
+
+logger = logging.getLogger("pamone_obs")
 
 CGROUP_ROOT = os.getenv("PAMONE_CGROUP_ROOT", "/sys/fs/cgroup")
 NET_DEV = os.getenv("PAMONE_NET_DEV", "/proc/net/dev")

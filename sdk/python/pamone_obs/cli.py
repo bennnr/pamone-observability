@@ -28,16 +28,24 @@ def _site_dirs():
 
 
 def install_pth():
-    written = []
-    for directory in _site_dirs():
-        try:
-            os.makedirs(directory, exist_ok=True)
-            with open(os.path.join(directory, PTH_NAME), "w") as fh:
-                fh.write(PTH_LINE)
-            written.append(directory)
-        except OSError:
-            continue
-    return written
+    """Write the auto-start hook next to the installed package.
+
+    The .pth must live in the site-packages directory that actually contains
+    pamone_obs, otherwise interpreters that share another site dir (e.g. the
+    user site) would exec it and fail with ModuleNotFoundError.
+    """
+    try:
+        import pamone_obs
+
+        target = os.path.dirname(os.path.dirname(os.path.abspath(pamone_obs.__file__)))
+    except Exception:
+        return []
+    try:
+        with open(os.path.join(target, PTH_NAME), "w") as fh:
+            fh.write(PTH_LINE)
+        return [target]
+    except OSError:
+        return []
 
 
 def main(argv=None):

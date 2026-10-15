@@ -7,12 +7,13 @@ Auto-detects the tracer in use:
 
 Enable only where traces are wanted; metrics/logs live in the metrics module.
 """
+import logging
 import os
 import threading
 
-from loguru import logger
-
 from . import contract
+
+logger = logging.getLogger("pamone_obs")
 
 MODE = os.getenv("PAMONE_TRACES_BACKEND", "auto").lower()  # auto|ddtrace|otel
 _started = False
