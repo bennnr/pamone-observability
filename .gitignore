@@ -1,0 +1,17 @@
+# Go build artifacts
+sdk/go/bin/
+sdk/go/**/bin/
+*.test
+*.out
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+dist/
+build/
+*.egg-info/
+.venv/
+
+# Editors / OS
+.DS_Store
+*.swp
