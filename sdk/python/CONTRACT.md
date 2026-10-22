@@ -49,6 +49,11 @@ Recommended metric names (match the agent's own collectors so query/charts work)
 - `span_kind`: `unspecified|internal|server|client|producer|consumer` (default `internal`).
 - `status_code`: `UNSET|OK|ERROR` (default `OK`).
 - `ts` optional (epoch millis); `duration_ns` required.
+- `attributes` (optional object of string→string): span attributes. Recommended
+  keys for the endpoint table and the waterfall: `http.method`, `http.route`
+  (or `http.target`/`url.path`), `http.status_code`, `http.request.body.size`
+  (or `request_body_size`), `request_body`, `env`, `language`. Missing keys are
+  fine; features degrade gracefully.
 
 ## Behaviour notes
 - Writers should truncate their file when it grows past a few MB; the agent

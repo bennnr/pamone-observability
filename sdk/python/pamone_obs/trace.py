@@ -19,6 +19,36 @@ MODE = os.getenv("PAMONE_TRACES_BACKEND", "auto").lower()  # auto|ddtrace|otel
 _started = False
 _lock = threading.Lock()
 
+def _common_attrs():
+    """Attributes every pamone span carries, regardless of tracer/framework."""
+    env = os.getenv("PAMONE_ENV") or os.getenv("APP_ENV") or os.getenv("ENV") or ""
+    out = {"language": "python"}
+    if env:
+        out["env"] = env
+    return out
+
+
+def _attrs_from_meta(meta):
+    out = {}
+    try:
+        for k, v in (meta or {}).items():
+            if v is not None:
+                out[str(k)] = str(v)
+    except Exception:
+        pass
+    return out
+
+
+def _http_from_resource(resource):
+    """ddtrace puts the HTTP route in span.resource, e.g. "POST /v1/llm/chat/completions"."""
+    out = {}
+    if resource and " " in resource:
+        method, _, route = str(resource).partition(" ")
+        if method.isupper() and method.isalpha() and route.startswith("/"):
+            out["http.method"] = method
+            out["http.route"] = route
+    return out
+
 
 def _hex(value, width):
     if value is None:
@@ -42,6 +72,28 @@ def _start_ddtrace():
             try:
                 rows = []
                 for span in trace:
+                    attrs = _common_attrs()
+                    attrs.update(_attrs_from_meta(getattr(span, "meta", None)))
+                    resource = getattr(span, "resource", "") or ""
+                    if resource:
+                        attrs.setdefault("resource", str(resource))
+                        for rk, rv in _http_from_resource(resource).items():
+                            attrs.setdefault(rk, rv)
+                    for tag in (
+                        "http.method",
+                        "http.url",
+                        "http.route",
+                        "http.status_code",
+                        "http.request.body.size",
+                        "request_body_size",
+                        "request_body",
+                    ):
+                        try:
+                            val = span.get_tag(tag)
+                        except Exception:
+                            val = None
+                        if val and tag not in attrs:
+                            attrs[tag] = str(val)
                     rows.append(
                         {
                             "ts": (span.start_ns or 0) // 1_000_000,
@@ -53,6 +105,7 @@ def _start_ddtrace():
                             "span_kind": "internal",
                             "duration_ns": int(span.duration_ns or 0),
                             "status_code": "ERROR" if span.error else "OK",
+                            "attributes": attrs,
                         }
                     )
                 if rows:
@@ -85,6 +138,19 @@ def _start_otel():
                 except Exception:
                     pass
                 status = "ERROR" if getattr(span.status, "status_code", 0) == 2 else "OK"
+                attrs = _common_attrs()
+                try:
+                    for k, v in (span.attributes or {}).items():
+                        if v is not None:
+                            attrs.setdefault(str(k), str(v))
+                except Exception:
+                    pass
+                try:
+                    for k, v in (span.resource.attributes or {}).items():
+                        if v is not None:
+                            attrs.setdefault(str(k), str(v))
+                except Exception:
+                    pass
                 _write(
                     [
                         {
@@ -97,6 +163,7 @@ def _start_otel():
                             "span_kind": "internal",
                             "duration_ns": int((span.end_time or 0) - (span.start_time or 0)),
                             "status_code": status,
+                            "attributes": attrs,
                         }
                     ]
                 )

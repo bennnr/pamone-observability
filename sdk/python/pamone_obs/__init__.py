@@ -27,7 +27,7 @@ from .contract import install_log_tee
 logger = logging.getLogger("pamone_obs")
 
 __all__ = ["init", "autostart", "contract", "metrics", "trace"]
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 def _bool(env, default):
