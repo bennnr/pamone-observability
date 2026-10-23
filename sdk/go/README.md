@@ -49,12 +49,25 @@ Sidecar env points at the same files:
 `AGENT_SPANS_PATH=<sink>/spans.jsonl`.
 
 ## Example image
-`example/` is a small HTTP server (otelhttp + pamone span processor). Build from
-this module root:
+`example/` is a small HTTP server instrumented with the **stock OpenTelemetry Go
+SDK** (otelhttp + OTLP/HTTP trace and metric exporters). It writes no files and
+needs no sidecar: the whole integration is `OTEL_EXPORTER_OTLP_ENDPOINT`.
+
+| Env | Default | Meaning |
+| --- | --- | --- |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | SDK default (`localhost:4318`) | OTLP/HTTP endpoint, e.g. `http://pamone-otlp-gateway:4318` |
+| `OTEL_EXPORTER_OTLP_PROTOCOL` | `http/protobuf` | exporter wire format |
+| `OTEL_SERVICE_NAME` | `pamone-go-example` | service name shown in *Trace Application* |
+| `OTEL_TRACES_EXPORTER` | `otlp` | `none` disables traces |
+| `OTEL_METRICS_EXPORTER` | `otlp` | `none` disables metrics |
+
+Build from this module root:
 ```bash
-docker build -f example/Dockerfile -t <registry>/pamone-example/pamone-go:0.1.0 .
+docker build -f example/Dockerfile -t <registry>/pamone-example/go:0.2.0 .
 ```
-A ready-to-deploy manifest lives at `deploy/k8s/go-smoketest-prod.yaml`.
+The published image is `pamone-registry.owllab.site/pamone-example/go:0.2.0`, deployed
+by the GitOps chart `pam/pamone/release/pamone-example`. `deploy/k8s/go-smoketest-prod.yaml`
+is the older sidecar-based manifest (tag `pamone-example/pamone-go:0.1.0`).
 
 ## Publish / consume from other servers
 Go modules resolve from git by **tag** — no upload step:
