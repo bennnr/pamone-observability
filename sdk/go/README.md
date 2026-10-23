@@ -63,9 +63,9 @@ needs no sidecar: the whole integration is `OTEL_EXPORTER_OTLP_ENDPOINT`.
 
 Build from this module root:
 ```bash
-docker build -f example/Dockerfile -t <registry>/pamone-example/go:0.2.0 .
+docker build -f example/Dockerfile -t <registry>/pamone-example/go:0.2.1 .
 ```
-The published image is `pamone-registry.owllab.site/pamone-example/go:0.2.0`, deployed
+The published image is `pamone-registry.owllab.site/pamone-example/go:0.2.1`, deployed
 by the GitOps chart `pam/pamone/release/pamone-example`. `deploy/k8s/go-smoketest-prod.yaml`
 is the older sidecar-based manifest (tag `pamone-example/pamone-go:0.1.0`).
 

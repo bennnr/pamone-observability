@@ -1,5 +1,5 @@
 # Build context: this module root (sdk/go). Example:
-#   docker build -f example/Dockerfile -t <registry>/pamone-example/go:0.2.0 .
+#   docker build -f example/Dockerfile -t <registry>/pamone-example/go:0.2.1 .
 FROM golang:1.23-alpine AS build
 WORKDIR /src
 COPY go.mod go.sum ./

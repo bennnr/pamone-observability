@@ -155,7 +155,13 @@ func main() {
 		addr = ":" + v
 	}
 
-	srv := &http.Server{Addr: addr, Handler: otelhttp.NewHandler(mux, "http")}
+	// Name server spans "<METHOD> <route>": otelhttp falls back to the operation
+	// name for every span otherwise, which collapses the whole service into a
+	// single operation in pamone's Operations and Endpoints views.
+	handler := otelhttp.NewHandler(mux, "http", otelhttp.WithSpanNameFormatter(
+		func(_ string, r *http.Request) string { return r.Method + " " + r.URL.Path }))
+
+	srv := &http.Server{Addr: addr, Handler: handler}
 
 	// Flush both pipelines on SIGTERM so a rolling update does not drop the last
 	// batch.
